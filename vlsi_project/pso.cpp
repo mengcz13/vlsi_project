@@ -17,26 +17,34 @@ void Router::genHananPs() {
 	hananPs = std::vector<Point>(hPSet.begin(), hPSet.end());
 	hPSet.insert(targetPs.begin(), targetPs.end());
 	allPs = std::vector<Point>(hPSet.begin(), hPSet.end());
+	xs.clear();
+	ys.clear();
+	for (auto iter = targetPs.begin(); iter != targetPs.end(); ++iter) {
+		xs.insert((double)(iter->x));
+		ys.insert((double)(iter->y));
+	}
 }
 
 void Router::route() {
 	initParticles();
-	for (int i = 0; i < 10000; ++i) {
-		W = 0.9 - i / 10000.0 * 0.5;
+	int maxIter = iterTime;
+	for (int i = 0; i < maxIter; ++i) {
+		W = 0.9 - (double)i / (double)maxIter * 0.5;
 		moveParticles();
 		evalParticles();
 		if (i % 1000 == 0)
 			cout << "Iter: " << i << " , globalBest: " << globalBest.fitness 
 				<< ", L: " << L 
-				<< ", sigma: " << sigma
+				//<< ", sigma: " << sigma
 				<< endl;
 	}
+	steinerMst = getGlobalBestMst();
 }
 
 void Router::initParticles() {
 	globalBest.fitness = INT_MIN;
 	// 计算目标点的MST
-	mstMhtDist(targetPs, L);
+	originMst = mstMhtDist(targetPs, L);
 	// 生成PNUM个粒子
 	for (int i = 0; i < PNUM; ++i) {
 		shuffle(hananPs.begin(), hananPs.end(), GEN);
@@ -66,6 +74,7 @@ void Router::moveParticles() {
 		average.at(i).x /= PNUM;
 		average.at(i).y /= PNUM;
 	}
+	/*
 	sigma = 0;
 	for (int i = 0; i < PNUM; ++i) {
 		for (int j = 0; j < average.size(); ++j) {
@@ -73,7 +82,7 @@ void Router::moveParticles() {
 			sigma += (dp.x * dp.x + dp.y * dp.y);
 		}
 	}
-	sigma /= PNUM;
+	sigma /= PNUM;*/
 	//if (sigma > 2)
 	//	return;
 	// 更新粒子位置
@@ -122,6 +131,7 @@ int Router::calcFitness(const Particle& particle) const {
 		Point hp = Point();
 		double mind = INFINITY;
 		Pos p = particle.posvec.at(i);
+		/*
 		for (auto h = allPs.begin(); h != allPs.end(); ++h) {
 			double dx = h->x - p.x;
 			double dy = h->y - p.y;
@@ -130,7 +140,31 @@ int Router::calcFitness(const Particle& particle) const {
 				mind = dst;
 				hp = *h;
 			}
+		}*/
+		auto lx = xs.lower_bound(p.x);
+		auto hx = xs.upper_bound(p.x);
+		auto ly = ys.lower_bound(p.y);
+		auto hy = ys.upper_bound(p.y);
+		int lxi = 0, hxi = MAXX, lyi = 0, hyi = MAXY;
+		if (lx != xs.end())
+			lxi = *lx;
+		if (hx != xs.end())
+			hxi = *hx;
+		if (ly != ys.end())
+			lyi = *ly;
+		if (hy != ys.end())
+			hyi = *hy;
+		Point cps[4] = { Point(lxi, lyi), Point(lxi, hyi), Point(hxi, lyi), Point(hxi, hyi) };
+		for (int j = 0; j < 4; ++j) {
+			double dx = cps[j].x - p.x;
+			double dy = cps[j].y - p.y;
+			double dst = dx * dx + dy * dy;
+			if (dst < mind) {
+				mind = dst;
+				hp = cps[j];
+			}
 		}
+		
 		ps.push_back(hp);
 	}
 	set<Point> pset = set<Point>(ps.begin(), ps.end());
@@ -139,4 +173,60 @@ int Router::calcFitness(const Particle& particle) const {
 	int mstdist = 0;
 	mstMhtDist(ps, mstdist);
 	return L - mstdist;
+}
+
+vector<pair<Point, Point>> Router::getGlobalBestMst() const {
+	vector<Point> ps = targetPs;
+	for (int i = 0; i < globalBest.num; ++i) {
+		Point hp = Point();
+		double mind = INFINITY;
+		Pos p = globalBest.posvec.at(i);
+		auto lx = xs.lower_bound(p.x);
+		auto hx = xs.upper_bound(p.x);
+		auto ly = ys.lower_bound(p.y);
+		auto hy = ys.upper_bound(p.y);
+		int lxi = 0, hxi = MAXX, lyi = 0, hyi = MAXY;
+		if (lx != xs.end())
+			lxi = *lx;
+		if (hx != xs.end())
+			hxi = *hx;
+		if (ly != ys.end())
+			lyi = *ly;
+		if (hy != ys.end())
+			hyi = *hy;
+		Point cps[4] = { Point(lxi, lyi), Point(lxi, hyi), Point(hxi, lyi), Point(hxi, hyi) };
+		for (int j = 0; j < 4; ++j) {
+			double dx = cps[j].x - p.x;
+			double dy = cps[j].y - p.y;
+			double dst = dx * dx + dy * dy;
+			if (dst < mind) {
+				mind = dst;
+				hp = cps[j];
+			}
+		}
+
+		ps.push_back(hp);
+	}
+	set<Point> pset = set<Point>(ps.begin(), ps.end());
+	ps = vector<Point>(pset.begin(), pset.end());
+	// MST
+	int mstdist = 0;
+	return mstMhtDist(ps, mstdist);
+}
+
+void Router::printSolution(ostream& os) const {
+	os << "T:" << endl;
+	for (auto iter = targetPs.begin(); iter != targetPs.end(); ++iter) {
+		os << iter->x << " " << iter->y << endl;
+	}
+	os << "MST:" << endl;
+	for (auto iter = originMst.begin(); iter != originMst.end(); ++iter) {
+		os << iter->first.x << " " << iter->first.y << " "
+			<< iter->second.x << " " << iter->second.y << endl;
+	}
+	os << "RMST:" << endl;
+	for (auto iter = steinerMst.begin(); iter != steinerMst.end(); ++iter) {
+		os << iter->first.x << " " << iter->first.y << " "
+			<< iter->second.x << " " << iter->second.y << endl;
+	}
 }

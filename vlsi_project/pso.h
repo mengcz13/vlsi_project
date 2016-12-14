@@ -75,11 +75,14 @@ struct Router {
 	std::vector<Point> targetPs;	// 需连接的所有点
 	std::vector<Point> hananPs;		// Hanan点
 	std::vector<Point> allPs;		// targetPs + hananPs
+	std::set<double> xs;
+	std::set<double> ys;
 	std::vector<Particle> particles;	// 种群
 
 	int PNUM;	// 种群大小
 	double C1, C2;	// 学习因子
 	double W;		// 惯性系数
+	int iterTime;	// 迭代次数
 
 	int L;		// 目标点的MST长度, 为生成线网的总长度上限
 
@@ -89,6 +92,9 @@ struct Router {
 
 	int MAXX;					// x坐标最大值
 	int MAXY;					// y坐标最大值
+
+	std::vector<std::pair<Point, Point>> originMst;
+	std::vector<std::pair<Point, Point>> steinerMst;
 
 	Router(const std::vector<Point>& points, int pnum, double c1, double c2) {
 		PNUM = pnum;
@@ -109,6 +115,10 @@ struct Router {
 	void evalParticles();	// 对每个粒子求fitness, 更新个体最优解, 全局最优解
 
 	int calcFitness(const Particle& particle) const;
+
+	std::vector<std::pair<Point, Point>> getGlobalBestMst() const;
+
+	void printSolution(std::ostream& os) const;
 };
 
 #endif

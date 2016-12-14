@@ -32,6 +32,6 @@ inline int mhtDist(const Point& p1, const Point& p2) {
 }
 
 // 曼哈顿距离下的最小生成树
-std::vector<Point> mstMhtDist(const std::vector<Point>& ps, int& dist);
+std::vector<std::pair<Point, Point>> mstMhtDist(const std::vector<Point>& ps, int& dist);
 
 #endif

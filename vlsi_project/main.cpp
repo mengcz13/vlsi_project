@@ -1,4 +1,5 @@
 #include <iostream>
+#include <fstream>
 #include <random>
 #include <ctime>
 #include "utils.h"
@@ -19,9 +20,10 @@ int main(int argc, char** argv) {
 	int PN = 50;
 	double C1 = 0.5;
 	double C2 = 0.9;
+	int maxIterTime = 10000;
 	
-	if (argc < 7) {
-		cout << "参数说明: main.exe <需连接的点数> <X最大坐标值> <Y最大坐标值> <粒子数> <C1> <C2>" << endl;
+	if (argc < 9) {
+		cout << "参数说明: main.exe <需连接的点数> <X最大坐标值> <Y最大坐标值> <粒子数> <C1> <C2> <迭代次数> <输出文件>" << endl;
 		return -1;
 	}
 
@@ -31,6 +33,8 @@ int main(int argc, char** argv) {
 	PN = atoi(argv[4]);
 	C1 = atof(argv[5]);
 	C2 = atof(argv[6]);
+	maxIterTime = atoi(argv[7]);
+	ofstream f0(argv[8]);
 
 	vector<Point> points = vector<Point>();
 	/*
@@ -45,6 +49,10 @@ int main(int argc, char** argv) {
 	Router router(points, PN, C1, C2);
 	router.MAXX = MAXX;
 	router.MAXY = MAXY;
+	router.iterTime = maxIterTime;
 	router.route();
+	
+	router.printSolution(f0);
+	
 	return 0;
 }
