@@ -146,11 +146,13 @@
     </Link>
   </ItemDefinitionGroup>
   <ItemGroup>
+    <ClCompile Include="batch_1_steiner.cpp" />
     <ClCompile Include="main.cpp" />
     <ClCompile Include="pso.cpp" />
     <ClCompile Include="utils.cpp" />
   </ItemGroup>
   <ItemGroup>
+    <ClInclude Include="batch_1_steiner.h" />
     <ClInclude Include="pso.h" />
     <ClInclude Include="utils.h" />
   </ItemGroup>

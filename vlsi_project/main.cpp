@@ -4,6 +4,7 @@
 #include <ctime>
 #include "utils.h"
 #include "pso.h"
+#include "batch_1_steiner.h"
 using namespace std;
 
 int SEED = time(0);
@@ -46,13 +47,17 @@ int main(int argc, char** argv) {
 	uniform_int_distribution<> disy(0, MAXY);
 	for (int i = 0; i < N; ++i)
 		points.push_back(Point(disx(GEN), disy(GEN)));
+	/*
 	Router router(points, PN, C1, C2);
 	router.MAXX = MAXX;
 	router.MAXY = MAXY;
 	router.iterTime = maxIterTime;
 	router.route();
-	
 	router.printSolution(f0);
-	
+	*/
+
+	Batch1Steiner batch1Steiner(points);
+	batch1Steiner.route();
+	batch1Steiner.printSolution(f0);
 	return 0;
 }
