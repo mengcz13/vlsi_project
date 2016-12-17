@@ -32,11 +32,13 @@ void Router::route() {
 		W = 0.9 - (double)i / (double)maxIter * 0.5;
 		moveParticles();
 		evalParticles();
+		/*
 		if (i % 1000 == 0)
 			cout << "Iter: " << i << " , globalBest: " << globalBest.fitness 
 				<< ", L: " << L 
 				//<< ", sigma: " << sigma
 				<< endl;
+				*/
 	}
 	steinerMst = getGlobalBestMst();
 }
@@ -215,6 +217,7 @@ vector<pair<Point, Point>> Router::getGlobalBestMst() const {
 }
 
 void Router::printSolution(ostream& os) const {
+	cout << L << " " << L - globalBest.fitness << " " << timing << endl;
 	os << "T:" << endl;
 	for (auto iter = targetPs.begin(); iter != targetPs.end(); ++iter) {
 		os << iter->x << " " << iter->y << endl;

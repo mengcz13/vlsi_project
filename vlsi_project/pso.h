@@ -108,6 +108,17 @@ struct Router {
 
 	void route();			// 布线函数
 
+	double timing;			// timing (ms)
+
+	void routeWithTiming() {
+		LARGE_INTEGER st, et, freq;
+		QueryPerformanceFrequency(&freq);
+		QueryPerformanceCounter(&st);
+		route();
+		QueryPerformanceCounter(&et);
+		timing = (et.QuadPart - st.QuadPart) * 1000.0 / freq.QuadPart;
+	}
+
 	void initParticles();	// 初始化粒子群
 
 	void moveParticles();	// 更新粒子群

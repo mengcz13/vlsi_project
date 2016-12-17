@@ -9,6 +9,14 @@
 #include <map>
 #include <algorithm>
 
+#include <windows.h>
+
+// random
+extern int SEED;
+extern std::random_device RD;
+extern std::mt19937 GEN;
+extern std::uniform_real_distribution<> DIS01;
+
 // ¸ñµã
 struct Point {
 	int x;

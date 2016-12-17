@@ -3,7 +3,14 @@
 #include <deque>
 #include <cassert>
 #include <iostream>
+#include <ctime>
 using namespace std;
+
+// random
+int SEED = time(0);
+random_device RD;
+mt19937 GEN(RD());
+uniform_real_distribution<> DIS01(0, 1);
 
 // Prim algorithm
 vector<pair<Point, Point>> mstMhtDist(const vector<Point>& ps, int& dist) {
